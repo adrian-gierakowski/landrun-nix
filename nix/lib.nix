@@ -2,13 +2,9 @@
 
 rec {
   evalModules = { name ? "landrun", modules }: (lib.evalModules {
-    specialArgs = {
-      inherit name pkgs;
-    };
     modules = [
-      ../modules/flake-parts/landrun/options.nix
-      ../modules/flake-parts/landrun/features.nix
-      ../modules/flake-parts/landrun/wrapper.nix
+      ../modules/flake-parts/landrun/landrun.nix
+      { _module.args = { inherit pkgs name; }; }
     ] ++ modules;
   });
 
