@@ -2,6 +2,8 @@
   description = "Flake-parts module for wrapping programs with landrun sandbox";
 
   outputs = { self }: {
+    lib = ./nix/lib.nix;
+
     flakeModule = ./modules/flake-parts/landrun;
 
     om.ci.default = {
