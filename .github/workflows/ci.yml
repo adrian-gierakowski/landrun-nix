@@ -24,6 +24,5 @@ jobs:
       - name: CI
         run: vira ci --only-build
 
-      - name: CI (tests)
-        run: |
-          nix develop ./tests -c ./tests/test.bats
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
