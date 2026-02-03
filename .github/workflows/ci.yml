@@ -20,7 +20,7 @@ jobs:
       - run: nix --accept-flake-config profile install github:juspay/vira
 
       - name: CI
-        run: vira ci
+        run: vira ci --only-build
 
       - name: CI (tests)
         run: |
