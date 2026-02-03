@@ -43,6 +43,12 @@ in
             default = false;
             description = "Enable D-Bus access for keyring and Secret Service API";
           };
+
+          claudeWorkaround = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Enable specific workaround for Claude Code (listing parent directories of CWD on macOS)";
+          };
         };
       };
       default = { };
