@@ -12,7 +12,6 @@
         [ "."
         , "./examples/claude-sandboxed" { overrideInputs = [("landrun-nix", ".")] }
         , "./examples/standalone" { overrideInputs = [("landrun-nix", ".")] }
-        , "./tests" { overrideInputs = [("landrun-nix", ".")] }
         ]
     , signoff.enable = True
     }

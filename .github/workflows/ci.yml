@@ -22,3 +22,6 @@ jobs:
       - name: CI
         run: vira ci
 
+      - name: CI (tests)
+        run: |
+          nix develop ./tests -c ./tests/test.bats
