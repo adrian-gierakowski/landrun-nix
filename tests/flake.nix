@@ -46,6 +46,34 @@
             test-no-access = {
               program = "${pkgs.bash}/bin/bash";
             };
+            test-multi-paths = {
+              program = "${pkgs.bash}/bin/bash";
+              cli = {
+                ro = [ "./ro1" "./ro2" ];
+                rw = [ "./rw1" "./rw2" ];
+                rox = [ "./rox1" "./rox2" ];
+                rwx = [ "./rwx1" "./rwx2" ];
+              };
+            };
+            test-nested-paths = {
+              program = "${pkgs.bash}/bin/bash";
+              cli = {
+                ro = [ "./parent" ];
+                rw = [ "./parent/child" ];
+              };
+            };
+            test-multi-env = {
+              program = "${pkgs.bash}/bin/bash";
+              cli.env = [ "VAR1" "VAR2" ];
+            };
+            test-special-env = {
+              program = "${pkgs.bash}/bin/bash";
+              cli.env = [ "SPECIAL_VAR" ];
+            };
+            test-unrestricted-fs = {
+              program = "${pkgs.bash}/bin/bash";
+              cli.unrestrictedFilesystem = true;
+            };
           };
 
           devShells.default = pkgs.mkShell {
