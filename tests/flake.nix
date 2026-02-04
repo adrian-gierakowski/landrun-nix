@@ -45,9 +45,13 @@
             };
             test-no-access = {
               program = "${pkgs.bash}/bin/bash";
+              # Disable implicit tmp access to prevent unintended read access
+              features.tmp = false;
             };
             test-multi-paths = {
               program = "${pkgs.bash}/bin/bash";
+              # Disable implicit tmp access to test explicit permissions
+              features.tmp = false;
               cli = {
                 ro = [ "./ro1" "./ro2" ];
                 rw = [ "./rw1" "./rw2" ];
@@ -57,6 +61,8 @@
             };
             test-nested-paths = {
               program = "${pkgs.bash}/bin/bash";
+              # Disable implicit tmp access to test nested permissions
+              features.tmp = false;
               cli = {
                 ro = [ "./parent" ];
                 rw = [ "./parent/child" ];
