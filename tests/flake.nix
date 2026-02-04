@@ -74,6 +74,15 @@
               program = "${pkgs.bash}/bin/bash";
               cli.unrestrictedFilesystem = true;
             };
+            test-add-exec-disabled = {
+              program = "${pkgs.bash}/bin/bash";
+              cli.addExec = false;
+            };
+            test-extra-args = {
+              program = "${pkgs.bash}/bin/bash";
+              # We pass -v (verbose) to landrun via extraArgs
+              cli.extraArgs = [ "-v" ];
+            };
           };
 
           devShells.default = pkgs.mkShell {

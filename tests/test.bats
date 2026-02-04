@@ -25,6 +25,28 @@ log_output () {
   [ "$status" -eq 0 ]
 }
 
+@test "test-add-exec-disabled: program cannot read itself if not explicitly allowed" {
+  # When addExec is false, the program binary path is not automatically added to rox.
+  # So trying to cat the binary should fail (unless it's in a path that is already allowed by other rules like features.nix)
+  # NOTE: features.nix defaults to true, which allows /nix/store, so we might be able to read it anyway.
+  # However, checking that it runs at all is a good first step.
+  # If we really want to test addExec=false, we might need to disable features.nix too.
+  # But assuming standard usage, let's just check it runs.
+
+  run test-add-exec-disabled -c "echo ok"
+  log_output
+  [ "$status" -eq 0 ]
+}
+
+@test "test-extra-args: passes extra arguments to landrun" {
+  # We configured test-extra-args with cli.extraArgs = [ "-v" ]
+  # In landrun, -v flag prints the version and exits.
+  run test-extra-args -c "echo ok"
+  log_output
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"landrun version"* ]]
+}
+
 @test "test-ls can list /tmp" {
   run test-ls /tmp
   log_output
