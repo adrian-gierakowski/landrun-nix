@@ -188,9 +188,7 @@ special !@#\$%^&*()"
   run test-special-env -c "echo \"\$SPECIAL_VAR\""
   log_output
   [ "$status" -eq 0 ]
-  [[ "$output" == *"line1"* ]]
-  [[ "$output" == *"line2"* ]]
-  [[ "$output" == *"special"* ]]
+  [ "$output" == "$SPECIAL_VAR" ]
 }
 
 @test "test-unrestricted-fs: can access /etc" {
