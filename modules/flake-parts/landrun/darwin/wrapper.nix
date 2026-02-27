@@ -164,6 +164,11 @@ let
       # Set up environment variables
       ${lib.concatMapStrings (e: "export ${e}\n") config.cli.env}
 
+      # Append extra sandbox profile rules
+      cat >> "$PROFILE_FILE" <<EOF
+      ${config.darwin.extraSandboxProfile}
+      EOF
+
       exec sandbox-exec -f "$PROFILE_FILE" ${config.program} "$@"
     '';
   };

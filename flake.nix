@@ -11,6 +11,7 @@
       git = import ./modules/landrun/git.nix;
       haskell = import ./modules/landrun/haskell.nix;
       markitdown = import ./modules/landrun/markitdown.nix;
+      claude-code = import ./modules/landrun/claude-code.nix;
       landrun = ./modules/flake-parts/landrun/landrun.nix;
       landrunApps = ./modules/flake-parts/landrun/landrunApps.nix;
     };

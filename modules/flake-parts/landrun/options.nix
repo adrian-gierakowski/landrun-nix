@@ -111,6 +111,20 @@ in
       description = "Landrun CLI arguments configuration";
     };
 
+    darwin = mkOption {
+      type = types.submodule {
+        options = {
+          extraSandboxProfile = mkOption {
+            type = types.lines;
+            default = "";
+            description = "Extra Sandbox Profile Language (SBPL) rules to append on macOS";
+          };
+        };
+      };
+      default = { };
+      description = "macOS specific configuration";
+    };
+
     meta = mkOption {
       type = types.attrsOf types.anything;
       default = { };
