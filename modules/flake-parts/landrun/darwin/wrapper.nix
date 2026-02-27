@@ -64,6 +64,8 @@ let
 
       EOF
 
+      ${config.preStartHooks}
+
       # Isolation of environment variables (like landrun does)
       # We save allowed variables, unset all, then restore allowed.
       ALLOWED_VARS=(${lib.concatStringsSep " " (map (e: "\"${e}\"") config.cli.env)})
