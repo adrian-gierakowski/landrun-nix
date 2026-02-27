@@ -28,27 +28,24 @@ log_output () {
 
 @test "test-prestart-dir: creates directory before sandbox starts" {
   # The hook runs 'mkdir -p ./created_by_hook'
-  # We expect the directory to be created even if landrun fails due to missing Landlock support
+  # The program runs 'ls -d ./created_by_hook' implicitly via test-ls command if arguments allow,
+  # but here test-prestart-dir is 'ls', so we pass the directory as argument.
 
   run test-prestart-dir -d ./created_by_hook
   log_output
-  # We allow status != 0 because landrun might fail
-  # [ "$status" -eq 0 ]
+  [ "$status" -eq 0 ]
   [ -d "created_by_hook" ]
 }
 
 @test "test-prestart-env: sets environment variable in hook" {
   # The hook runs 'export HOOK_SECRET=decrypted_value'
-  # Since landrun fails, we cannot verify the env inside the process.
-  # But we can verify that the wrapper script contains the export.
+  # The cli.env has "HOOK_SECRET".
+  # Wrapper exports the var, landrun picks it up.
 
-  wrapper_path=$(command -v test-prestart-env)
-  echo "Wrapper path: $wrapper_path"
-
-  # Check if the wrapper script contains the expected export
-  run grep -q "export HOOK_SECRET='decrypted_value'" "$wrapper_path"
+  run test-prestart-env -c 'echo $HOOK_SECRET'
   log_output
   [ "$status" -eq 0 ]
+  [[ "$output" == *"decrypted_value"* ]]
 }
 
 @test "test-no-nix-fail: program cannot exec if it cannot access libs from nix store" {
