@@ -123,6 +123,16 @@
               # We pass -v (verbose) to landrun via extraArgs
               cli.extraArgs = [ "-v" ];
             };
+            test-prestart-dir = {
+              program = "${pkgs.coreutils}/bin/ls";
+              cli.rw = [ "./created_by_hook" ];
+              preStartHooks = "mkdir -p ./created_by_hook";
+            };
+            test-prestart-env = {
+              program = "${pkgs.bash}/bin/bash";
+              cli.env = [ "HOOK_SECRET" ];
+              preStartHooks = "export HOOK_SECRET='decrypted_value'";
+            };
           };
 
           devShells.default = pkgs.mkShell {

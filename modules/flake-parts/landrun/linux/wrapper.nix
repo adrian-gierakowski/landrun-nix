@@ -29,6 +29,8 @@
         name = name;
         runtimeInputs = [ pkgs.landrun ];
         text = ''
+          ${config.preStartHooks}
+
           args=()
 
           # Add conditional --rox paths
