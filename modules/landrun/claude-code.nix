@@ -2,12 +2,14 @@
 {
   config = lib.mkIf pkgs.stdenv.isDarwin {
     darwin.extraSandboxProfile = ''
+      ;; Essential process permissions (execution, forking, and basic IPC within the sandbox)
       (allow process-exec)
       (allow process-fork)
       (allow process-info* (target same-sandbox))
       (allow signal (target same-sandbox))
       (allow mach-priv-task-port (target same-sandbox))
 
+      ;; Allow read access to basic system hardware/software information
       (allow sysctl-read
           (sysctl-name "hw.activecpu")
           (sysctl-name "hw.busfrequency_compat")
@@ -39,6 +41,7 @@
           (sysctl-name "kern.version")
       )
 
+      ;; File I/O on device files (DTrace and null device interactions)
       (allow file-ioctl file-read-metadata file-read-data file-write-data  (literal "/dev/dtracehelper"))
       (allow file-ioctl file-read-metadata file-read-data file-write-data
         (require-all
@@ -47,14 +50,17 @@
         )
       )
 
+      ;; Required for tools relying on pseudo-terminals (e.g. interactive prompts)
       (allow pseudo-tty)
 
+      ;; Allow mach lookups for essential system services (process listing, file watching, DNS)
       (allow mach-lookup
           (global-name "com.apple.sysmond")
           (global-name "com.apple.FSEvents")
           (global-name "com.apple.SystemConfiguration.DNSConfiguration")
       )
 
+      ;; Broad mach lookups for general macOS system functionality (fonts, audio, logging, directory services)
       (allow mach-lookup
         (global-name "com.apple.audio.systemsoundserver")
         (global-name "com.apple.distributed_notifications@Uv3")
@@ -73,6 +79,7 @@
         (global-name "com.apple.coreservices.launchservicesd")
       )
 
+      ;; Critical for macOS Keychain access (e.g. reading API keys)
       (allow mach-lookup
           (global-name "com.apple.SecurityServer")
           (global-name "com.apple.securityd")
