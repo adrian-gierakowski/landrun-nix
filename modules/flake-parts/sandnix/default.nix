@@ -13,7 +13,7 @@ in
           packages = lib.mapAttrs
             (name: cfg: cfg.wrappedPackage)
             config.sandnixApps
-            // lib.optionalAttrs pkgs.stdenv.isLinux
+            //
               (lib.mapAttrs'
                 (name: cfg: lib.nameValuePair "${cfg.name}-with-args" cfg.wrappedPackageWithSandboxArgs)
                 config.sandnixApps);
@@ -25,7 +25,7 @@ in
               meta = cfg.meta;
             })
             config.sandnixApps
-            // lib.optionalAttrs pkgs.stdenv.isLinux
+            //
               (lib.mapAttrs'
                 (name: cfg: {
                   name = "${cfg.name}-with-args";

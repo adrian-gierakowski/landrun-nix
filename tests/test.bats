@@ -27,9 +27,6 @@ log_output () {
 }
 
 @test "test-sandbox-args-with-args: passing args before -- and after --" {
-  if [ "$OS" == "Darwin" ]; then
-    skip "with-args variant is only implemented for Linux"
-  fi
 
   # Try to read test_secret
   # If we don't pass --rw, it should fail
