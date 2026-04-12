@@ -1,7 +1,10 @@
 { lib, config, pkgs, ... }:
 let
-  pkg = pkgs.writeShellApplication {
-    name = config.name;
+  mkWrappedPackage = { withSandboxArgs ? false }:
+    let
+      scriptName = if withSandboxArgs then "${config.name}-with-args" else config.name;
+    in pkgs.writeShellApplication {
+    name = scriptName;
     runtimeInputs = [ pkgs.coreutils ];
     text = ''
       user=''${USER:-nobody}
@@ -143,8 +146,76 @@ let
       # shellcheck disable=SC2016
       ${lib.optionalString (config.cli.rwx != []) "add_paths rwx ${lib.escapeShellArgs config.cli.rwx}\n"}
 
+      ${if withSandboxArgs then ''
+      sandbox_args=()
+      program_args=()
+      seen_dash_dash=0
+
+      for arg in "$@"; do
+        if [ "$seen_dash_dash" -eq 1 ]; then
+          program_args+=("$arg")
+        elif [ "$arg" = "--" ]; then
+          seen_dash_dash=1
+        else
+          sandbox_args+=("$arg")
+        fi
+      done
+
+      if [ "$seen_dash_dash" -eq 0 ]; then
+        # If no -- was found, all args go to landrun (or sandbox parser here)
+        sandbox_args=("$@")
+        program_args=()
+      fi
+
+      # Process sandbox arguments
+      while [ ''${#sandbox_args[@]} -gt 0 ]; do
+        arg="''${sandbox_args[0]}"
+        sandbox_args=("''${sandbox_args[@]:1}") # shift
+
+        case "$arg" in
+          --rox|--ro|--rw|--rwx)
+            if [ ''${#sandbox_args[@]} -eq 0 ]; then
+              echo "sandnix: missing value for $arg" >&2
+              exit 1
+            fi
+            val="''${sandbox_args[0]}"
+            sandbox_args=("''${sandbox_args[@]:1}") # shift
+            add_paths "''${arg#--}" "$val"
+            ;;
+          --env)
+            if [ ''${#sandbox_args[@]} -eq 0 ]; then
+              echo "sandnix: missing value for $arg" >&2
+              exit 1
+            fi
+            val="''${sandbox_args[0]}"
+            sandbox_args=("''${sandbox_args[@]:1}") # shift
+            if [[ -v "$val" ]]; then
+              ENV_ARGS+=("$val=''${!val}")
+            fi
+            ;;
+          --unrestricted-network)
+            echo "(allow network*)" >> "$PROFILE_FILE"
+            ;;
+          --unrestricted-filesystem)
+            echo "(allow file*)" >> "$PROFILE_FILE"
+            ;;
+          --add-exec)
+            echo "(allow file-read* (literal \"${config.program}\"))" >> "$PROFILE_FILE"
+            echo "(allow process-exec (literal \"${config.program}\"))" >> "$PROFILE_FILE"
+            ;;
+          *)
+            echo "sandnix: unknown sandbox argument: $arg" >&2
+            exit 1
+            ;;
+        esac
+      done
+
+      # Execute with isolated environment
+      exec env -i "''${ENV_ARGS[@]}" sandbox-exec -f "$PROFILE_FILE" ${config.program} "''${program_args[@]}"
+      '' else ''
       # Execute with isolated environment
       exec env -i "''${ENV_ARGS[@]}" sandbox-exec -f "$PROFILE_FILE" ${config.program} "$@"
+      ''}
     '';
   };
 in
@@ -152,8 +223,9 @@ in
   config = lib.mkIf pkgs.stdenv.isDarwin {
     wrappedPackage =
       if config.cli.extraArgs != [ ] then
-        lib.warn "sandnix: extraArgs are ignored on Darwin as sandbox-exec does not support them." pkg
+        lib.warn "sandnix: extraArgs are ignored on Darwin as sandbox-exec does not support them." (mkWrappedPackage { withSandboxArgs = false; })
       else
-        pkg;
+        mkWrappedPackage { withSandboxArgs = false; };
+    wrappedPackageWithSandboxArgs = mkWrappedPackage { withSandboxArgs = true; };
   };
 }
